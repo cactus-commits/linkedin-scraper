@@ -103,4 +103,49 @@ def get_job_details(job_id, category, experience):
     return job
 
 
+# 3: SAVE TO SUPABASE
+# upsert = insert if new, update if already exists
+# on_conflict="job_id" means: if a row with this job_id exists, update it instead of creating a duplicate.
 
+def save_to_supabase(jobs):
+    saved = 0
+    for job in jobs:
+        try:
+            supabase.table("linkedin_jobs").upsert(
+                job, on_conflict="job_id"
+            ).execute()
+            saved += 1
+        except Exception as e:
+            print(f"Failed to save job {job.get('job_id')}: {e}")
+    return saved
+
+
+
+# ties everything together
+
+def run_scraper():
+    jobs = []
+    
+    for search in SEARCHES:
+        print(f"Fetching job IDs for: {search['keywords']}...")
+        job_ids = get_job_ids(
+            keywords=search["keywords"],
+            experience=search["experience"],
+            start=0
+        )
+        print(f"Found {len(job_ids)} jobs")
+
+        for i, job_id in enumerate(job_ids):
+            print(f"Fetching details for job {i+1}/{len(job_ids)}: {job_id}")
+            details = get_job_details(
+                job_id,
+                category=search["category"],
+                experience=search["experience"]
+            )
+            if details:
+                jobs.append(details)
+
+            time.sleep(random.uniform(2, 5))
+
+    saved = save_to_supabase(jobs)
+    print(f"Saved {saved} jobs.")
