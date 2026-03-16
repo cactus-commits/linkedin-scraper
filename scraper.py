@@ -43,4 +43,64 @@ def get_job_ids(keywords, experience, start=0):
     return id_list
 
 
+# 2: GET JOB INFO
+# separate guest API endpoint for each job id -> returns job posting -> parse out the fields we need
+#
+def get_job_details(job_id, category, experience):
+    url = f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
+    response = requests.get(url, headers=HEADERS)
+
+    if response.status_code != 200:
+        print(f"Could not fetch job {job_id}. Status: {response.status_code}")
+        return None
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    job = {"job_id": job_id}  # save job_id so supabase can deduplicate later
+
+    # try/except for each field to avoid crashing the script if one field is missing
+    try:
+        job["job_title"] = soup.find(
+            "h2", {"class": "top-card-layout__title"}
+        ).text.strip()
+    except AttributeError:
+        job["job_title"] = None
+
+    try:
+        job["company_name"] = soup.find(
+            "a", {"class": "topcard__org-name-link"}
+        ).text.strip()
+    except AttributeError:
+        job["company_name"] = None
+
+    try:
+        job["location"] = soup.find(
+            "span", {"class": "topcard__flavor--bullet"}
+        ).text.strip()
+    except AttributeError:
+        job["location"] = None
+
+    try:
+        job["time_posted"] = soup.find(
+            "span", {"class": "posted-time-ago__text"}
+        ).text.strip()
+    except AttributeError:
+        job["time_posted"] = None
+
+    try:
+        job["num_applicants"] = soup.find(
+            "span", {"class": "num-applicants__caption"}
+        ).text.strip()
+    except AttributeError:
+        job["num_applicants"] = None
+
+    # Direct link to apply
+    job["job_url"] = f"https://www.linkedin.com/jobs/view/{job_id}"
+
+    job["category"] = category
+    job["experience_level"] = EXPERIENCE_MAP.get(experience)
+
+    return job
+
+
 
