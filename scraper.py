@@ -54,7 +54,7 @@ def get_job_details(job_id, category, experience):
         print(f"Could not fetch job {job_id}. Status: {response.status_code}")
         return None
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = beautifulsoup4(response.text, "html.parser")
 
     job = {"job_id": job_id}  # save job_id so supabase can deduplicate later
 
