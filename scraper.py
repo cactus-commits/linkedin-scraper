@@ -1,7 +1,7 @@
 import requests
 import time
 import random
-from bs4 import BeautifulSoup
+from bs4 import beautifulsoup4
 from supabase import create_client
 from config import HEADERS, LOCATION, TIME_FILTER, EXPERIENCE_MAP, SEARCHES, SUPABASE_URL, SUPABASE_KEY
 
@@ -24,12 +24,12 @@ def get_job_ids(keywords, experience, start=0):
 
     response = requests.get(url, headers=HEADERS)
 
-    # Blocked? status 429 or 403
+    # If blocked it will return status 429 or 403
     if response.status_code != 200:
         print(f"Failed to fetch job list. Status: {response.status_code}")
         return []
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = beautifulsoup4(response.text, "html.parser")
     job_cards = soup.find_all("li")
 
     id_list = []
