@@ -1,6 +1,4 @@
-def main():
-    print("Hello from linkedin-scraper!")
-
+from scraper import run_scraper
 
 if __name__ == "__main__":
-    main()
+    run_scraper()
