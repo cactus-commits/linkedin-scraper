@@ -7,7 +7,7 @@ on:
   # "0 */8 * * *" means: at minute 0 of every hour
   # -------------------------------------------------------
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0 */8 * * *"
 
   # This lets you also trigger it manually from GitHub UI
   # useful for testing without waiting for the hour
