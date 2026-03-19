@@ -1,0 +1,41 @@
+name: LinkedIn Job Scraper
+
+on:
+  # -------------------------------------------------------
+  # This is the cron schedule. Cron syntax is:
+  # minute | hour | day of month | month | day of week
+  # "0 */8 * * *" means: at minute 0 of every hour
+  # -------------------------------------------------------
+  schedule:
+    - cron: "0 * * * *"
+
+  # This lets you also trigger it manually from GitHub UI
+  # useful for testing without waiting for the hour
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest  # GitHub spins up a fresh Linux machine
+
+    steps:
+      # Step 1: Check out your code from the repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Install Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Step 3: Install your dependencies
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 supabase python-dotenv
+
+      # Step 4: Run your scraper
+      # The secrets come from GitHub repo settings (see below)
+      - name: Run scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python main.py
