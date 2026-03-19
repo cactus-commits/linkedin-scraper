@@ -1,7 +1,7 @@
 import requests
 import time
 import random
-from bs4 import beautifulsoup4
+from bs4 import BeautifulSoup
 from supabase import create_client
 from config import HEADERS, LOCATION, TIME_FILTER, EXPERIENCE_MAP, SEARCHES, SUPABASE_URL, SUPABASE_KEY
 
@@ -29,7 +29,7 @@ def get_job_ids(keywords, experience, start=0):
         print(f"Failed to fetch job list. Status: {response.status_code}")
         return []
 
-    soup = beautifulsoup4(response.text, "html.parser")
+    soup = BeautifulSoup(response.text, "html.parser")
     job_cards = soup.find_all("li")
 
     id_list = []
@@ -54,7 +54,7 @@ def get_job_details(job_id, category, experience):
         print(f"Could not fetch job {job_id}. Status: {response.status_code}")
         return None
 
-    soup = beautifulsoup4(response.text, "html.parser")
+    soup = BeautifulSoup(response.text, "html.parser")
 
     job = {"job_id": job_id}  # save job_id so supabase can deduplicate later
 
